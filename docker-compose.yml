@@ -1,17 +1,47 @@
 version: '3.8'
+
 services:
   backend:
-    build: C:\Users\Carlos Eduardo\Projetos Pessoais\eteg-project\cadastro-back
+    build: ./cadastro-back
     container_name: backend-app
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/eteg
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/eteg
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
-      - frontend
+      - db
+    networks:
+      - eteg-network
 
   frontend:
-    build: C:\Users\Carlos Eduardo\Projetos Pessoais\eteg-project\cadastro-front
+    build: ./cadastro-front
     container_name: frontend-app
     ports:
       - "3000:80"
+    networks:
+      - eteg-network
+
+  db:
+    image: postgres:latest
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eteg
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - eteg-network
+
+volumes:
+  postgres-data:
+
+
+networks:
+  eteg-network:
+    driver: bridge
